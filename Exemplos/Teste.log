@@ -1,0 +1,240 @@
+; USE YASM
+bits 64
+default rel
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:3:1: FuncaoNo
+global main
+main:
+_TESTE_MAIN:
+push rbp
+mov rbp, rsp
+sub rsp, 10
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:3:1: DeclaraVariavelNo
+.ARGC: equ 16
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:3:1: DeclaraVariavelNo
+.ARGV: equ 18
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:3:1: BlocoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:4:5: DeclaraVariavelNo
+.I: equ -2
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:5:5: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:5:23: StringNo
+segment .data
+.L0:
+
+db 11, 0, 79, 105, 101, 101, 101, 32, 109, 117, 110, 100, 111, 0
+segment .text
+lea rax, [.L0]
+push rax
+call _CONSOLE_WRITELINE
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:6:5: DeclaraVariavelNo
+.TXT: equ -10
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:6:25: StringNo
+segment .data
+.L1:
+
+db 3, 0, 32, 32, 32, 0
+segment .text
+lea rax, [.L1]
+mov [rbp+.TXT], rax
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:7:5: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:7:23: LeiaVariavelNo
+mov rax, [rbp+.TXT]
+push rax
+call _CONSOLE_WRITELINE
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:8:5: SeNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:8:13: ComparacaoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:8:8: NumeroNo
+mov rax, 1
+push rax
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:8:13: NumeroNo
+mov rax, 0
+pop rbx
+cmp rbx, rax
+jae long .L3
+jmp long .L2
+.L3:
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:8:5: BlocoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:9:9: ChamarFuncNo
+call _TESTE_OIE
+.L2:
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:5: ParaNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:13: AtribuicaoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:13: NumeroNo
+mov ax, 1
+mov [rbp+.I], ax
+.L4:
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:5: LeiaVariavelNo
+mov ax, [rbp+.I]
+mov bx, 10
+cmp bx, ax
+jae long .L5
+jmp long .L6
+.L5:
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:5: BlocoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:12:9: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:12:23: StringNo
+segment .data
+.L7:
+
+db 1, 0, 46, 0
+segment .text
+lea rax, [.L7]
+push rax
+call _CONSOLE_WRITE
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:26: AtribuicaoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:11:26: NumeroNo
+mov ax, 2
+add [rbp+.I], ax
+jmp long .L4
+.L6:
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:14:5: SeAsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:17:5: SeAsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:20:5: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:20:23: StringNo
+segment .data
+.L8:
+
+db 3, 0, 70, 73, 77, 0
+segment .text
+lea rax, [.L8]
+push rax
+call _CONSOLE_WRITELINE
+xor rax, rax
+.__END__:
+mov rsp, rbp
+pop rbp
+ret
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:100:1: FuncaoNo
+_CONSOLE_WRITELINE:
+push rbp
+mov rbp, rsp
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:100:1: DeclaraVariavelNo
+.TXT: equ 16
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:100:1: BlocoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:101:5: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:101:11: LeiaVariavelNo
+mov rax, [rbp+.TXT]
+push rax
+call _CONSOLE_WRITE
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:102:5: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:102:11: StringNo
+segment .data
+.L9:
+
+db 2, 0, 13, 10, 0
+segment .text
+lea rax, [.L9]
+push rax
+call _CONSOLE_WRITE
+xor rax, rax
+.__END__:
+mov rsp, rbp
+pop rbp
+ret
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:48:1: FuncaoNo
+_CONSOLE_WRITE:
+push rbp
+mov rbp, rsp
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:48:1: DeclaraVariavelNo
+.TXT: equ 16
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:48:1: BlocoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:50:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:51:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:52:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:53:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:54:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:55:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:56:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:57:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:58:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:59:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:60:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:61:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:62:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:63:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:64:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:65:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:66:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:69:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:70:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:71:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:72:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:73:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:74:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:75:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:76:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:77:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:80:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:81:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:82:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:83:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:84:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:85:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:86:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:87:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:90:9: AsmNo
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:91:9: AsmNo
+mov rsi, [rbp+.TXT]
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:92:9: AsmNo
+lodsw
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:93:9: AsmNo
+and rax, 0xffff
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:94:9: AsmNo
+mov rdx, rax
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:95:9: AsmNo
+mov rdi, 1
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:96:9: AsmNo
+mov rax, 1
+;/home/humberto/Nextcloud/hl/Exemplos/Console.hli:97:9: AsmNo
+syscall
+xor rax, rax
+.__END__:
+mov rsp, rbp
+pop rbp
+ret
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:23:1: FuncaoNo
+_TESTE_OIE:
+push rbp
+mov rbp, rsp
+sub rsp, 2
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:23:1: BlocoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:24:5: DeclaraVariavelNo
+.A: equ -2
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:24:22: NumeroNo
+mov ax, 557
+mov [rbp+.A], ax
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:25:5: AtribuicaoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:25:9: NumeroNo
+mov ax, 123
+mov [rbp+.A], ax
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:26:5: AtribuicaoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:26:10: NumeroNo
+mov ax, 4
+add [rbp+.A], ax
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:27:5: AtribuicaoNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:27:10: NumeroNo
+mov ax, 5
+xchg [rbp+.A], ax
+imul word [rbp+.A]
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:28:5: ChamarFuncNo
+;/home/humberto/Nextcloud/hl/Exemplos/Teste.hl:28:23: StringNo
+segment .data
+.L10:
+
+db 3, 0, 45, 45, 45, 0
+segment .text
+lea rax, [.L10]
+push rax
+call _CONSOLE_WRITELINE
+xor rax, rax
+.__END__:
+mov rsp, rbp
+pop rbp
+ret
+Oieee mundo
+   
+---
+.....FIM
+Oieee mundo
+   
+---
+.....FIM

@@ -1,0 +1,29 @@
+import "Console.hli"
+
+func Main(argc as int16, argv as ptr string) as int16 do
+    var i as uint16
+    Console.WriteLine "Oieee mundo"
+    var txt as string = "   "
+    Console.WriteLine txt
+    if 1 >= 0 do
+        Oie
+    end
+    for i = 1 to 10 step 2 do
+        Console.Write "."
+    end
+    iftarget i86 do
+        Console.WriteLine "Rodando do i86"
+    end
+    iftarget i86_dos do
+        Console.WriteLine "Rodando do DOS"
+    end
+    Console.WriteLine "FIM"
+end
+
+func Oie as int16 do
+    var a as int16 = 1 + 123 + 432 - 1 + 2
+    a = 123
+    a += 4
+    a *= 5
+    Console.WriteLine "---"
+end

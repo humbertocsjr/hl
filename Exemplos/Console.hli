@@ -1,0 +1,103 @@
+
+proc ReadLine(txt as string) do
+    asm i86_dos
+    asm "mov ax, [bp+.TXT+2]"
+    asm "mov si, [bp+.TXT]"
+    asm "push ds"
+    asm "mov ds, ax
+    asm "lodsw"
+    asm "mov cx, ax"
+    asm "xor ax, ax"
+    asm "mov byte [si], 0"
+    asm ".loop:"
+    asm "mov ah, 0x7"
+    asm "int 0x21"
+    asm "cmp al, 13"
+    asm "je .fim"
+    asm "cmp al, 10"
+    asm "je .fim"
+    asm "cmp al, 9"
+    asm "je .apaga"
+    asm "jcxz .loop"
+    asm "mov [si], al"
+    asm "inc si"
+    asm "mov ah, 0x2"
+    asm "mov dl, al"
+    asm "int 0x21"
+    asm "loop .loop"
+    asm "jmp .loop
+    asm ".apaga:"
+    asm "dec si"
+    asm "inc cx"
+    asm "mov byte [si], 0"
+    asm "mov ah, 0x2"
+    asm "mov dl, 9"
+    asm "int 0x21"
+    asm "mov dl, 32"
+    asm "int 0x21"
+    asm "mov dl, 9"
+    asm "int 0x21"
+    asm "jmp .loop"
+    asm ".fim:"
+    asm "pop ds"
+end
+
+proc WriteFormat(fmt as string, ...) do
+end
+
+proc Write(txt as string) do
+    // i86 - DOS
+    asm i86_dos
+    asm "mov ax, [bp+.TXT+2]"
+    asm "mov si, [bp+.TXT]"
+    asm "push ds"
+    asm "mov ds, ax
+    asm "lodsw"
+    asm "mov cx, ax"
+    asm ".loop:"
+    asm "lodsb"
+    asm "cmp al, 0"
+    asm "je .fim"
+    asm "mov dl, al"
+    asm "mov ah, 0x2"
+    asm "int 0x21"
+    asm "loop .loop"
+    asm ".fim:"
+    asm "pop ds"
+
+    // i386 - Linux
+    asm i386_linux
+    asm "mov esi, [ebp+.TXT]"
+    asm "lodsw"
+    asm "and eax, 0xffff"
+    asm "mov edx, eax"
+    asm "mov ecx, esi"
+    asm "mov eax, 4"
+    asm "mov ebx, 1"
+    asm "int 0x80"
+
+    // x64 - macOS
+    asm x64_macos
+    asm "mov rsi, [rbp+.TXT]"
+    asm "lodsw"
+    asm "and rax, 0xffff"
+    asm "mov rdx, rax"
+    asm "mov rdi, 1"
+    asm "mov rax, 0x2000004"
+    asm "syscall"
+
+    // x64 - Linux
+    asm x64_linux
+    asm "mov rsi, [rbp+.TXT]"
+    asm "lodsw"
+    asm "and rax, 0xffff"
+    asm "mov rdx, rax"
+    asm "mov rdi, 1"
+    asm "mov rax, 1"
+    asm "syscall"
+end
+
+proc WriteLine(txt as string) do
+    Write txt
+    Write "\r\n"
+end
