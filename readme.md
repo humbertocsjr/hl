@@ -136,6 +136,7 @@ Exemplo de função:
 ```
 func FuncaoSoma(a as Int16, b as Int16) as TIPO do
     // Comando utilizado para retornar um valor
+    Procedimento a, b
     return a + b
 end
 ```
@@ -158,8 +159,21 @@ Exemplo de procedimento:
 ```
 proc Procedimento(a as Int16, b as Int16) do
     var c as Int16
-    c = a + b
+    c = a + b + FuncaoSoma(1,2) // Chamando uma função
 end
+```
+
+### Chamando funções e procedimentos
+
+Para simplificar ao chamar uma rotina fora de uma expressão não é necessário o uso de parenteses para especificar o limite dos argumentos
+
+```
+proc Procedimento(a as Int16, b as Int16) do
+    var c as Int16
+    c = a + b + FuncaoSoma(1,2) // Chamando uma função
+    FuncaoSoma 1, 2 // Chamando a mesma função fora de uma expressão
+end
+
 ```
 
 ## Expressões
