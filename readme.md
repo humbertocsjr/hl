@@ -34,6 +34,7 @@ Com essas simplificações todos os comandos, nomes e identificadores não difer
 A HL suporta tipos de dados rigidos, e suas variaveis devem ser previamente declaradas antes do uso.
 
 | Tipo   | Descrição                                |
+|--------|------------------------------------------|
 | int8   | Inteiro de 8 bits                        |
 | int16  | Inteiro de 16 bits                       |
 | int32  | Inteiro de 32 bits                       |
