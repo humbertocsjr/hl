@@ -76,6 +76,23 @@ proc Write(txt as string) do
     asm "mov ebx, 1"
     asm "int 0x80"
 
+    // x64 - Windows
+    asm x64_windows
+    asm "extern WriteConsoleA"
+    asm "extern GetStdHandle"
+    asm "mov ecx, -11"
+    asm "call GetStdHandle"
+    asm "mov r9, rax"
+    asm "mov rsi, [rbp+.TXT]"
+    asm "xor rax, rax"
+    asm "lodsw"
+    asm "mov r8, rax"
+    asm "mov rdx, rsi"
+    asm "mov rax, r9"
+    asm "lea r9, [rsp-16]"
+    asm "push qword 0
+    asm "call WriteConsoleA"
+
     // x64 - macOS
     asm x64_macos
     asm "mov rsi, [rbp+.TXT]"
