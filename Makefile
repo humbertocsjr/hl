@@ -11,6 +11,8 @@ install:
 	@install -t /opt/hl bin/Release/*
 	@ln -f -s /opt/hl/hl /usr/bin/hl
 	@-rm -fR bin/Release
+	@chown -R $(shell logname):$(shell logname) obj
+	@chown -R $(shell logname):$(shell logname) bin
 
 bin/Debug/net6.0/hl: $(wildcard Nos/*.cs) $(wildcard Arquiteturas/*.cs) $(wildcard *.cs)
 	@dotnet build
