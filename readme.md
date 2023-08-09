@@ -137,7 +137,7 @@ Exemplo de função:
 
 
 ```
-func FuncaoSoma(a as Int16, b as Int16) as TIPO do
+func FuncaoSoma(a as Int16, b as Int16) as Int16 do
     // Comando utilizado para retornar um valor
     Procedimento a, b
     return a + b
@@ -189,10 +189,10 @@ As operações mais ao topo da tabela são executadas por último, englobando tr
 |--------------------|----------------------------------|
 | &&                 | E Lógico                         |
 | ||                 | Ou Lógico                        |
-| == != <> < > <= => | Comparações                      |
+| == != \<\> < > \<\= \=\> | Comparações                      |
 | + -                | Soma, Subtração                  |
 | * / %              | Multiplicação, Divisão, Módulo   |
-| & \| << >>         | Operações binárias               |
+| & \| \<\< \>\>         | Operações binárias               |
 
 ### Operações Matemáricas / Lógicas
 
@@ -220,15 +220,15 @@ As operações mais ao topo da tabela são executadas por último, englobando tr
     Diferença entre dois valores, retornando 1 para Sim e 0 para Não
 - **<** \
     Maior Que entre dois valores, retornando 1 para Sim e 0 para Não
-- **<=** \
+- **\<\=** \
     Maior Ou Igual entre dois valores, retornando 1 para Sim e 0 para Não
 - **>** \
     Menor Que entre dois valores, retornando 1 para Sim e 0 para Não
-- **>=** \
+- **\>\=** \
     Menor Ou Igual entre dois valores, retornando 1 para Sim e 0 para Não
-- **<<** \
+- **\<\<** \
     Aplica deslocamento de bits a esqueda
-- **>>** \
+- **\>\>** \
     Aplica deslocamento de bits a direita
 
 ## If
