@@ -9,17 +9,19 @@ Esta linguagem tem como objetivo ser uma linguagem de simples aprendizado, que g
 
 # Destinos Suportados
 
-| CPU | Sistema Operacional | Status             |
-|-----|---------------------|--------------------|
-| i86 | DOS                 | Falta a biblioteca |
-| i86 | CPM/86              | Falta a biblioteca |
-| i86 | fudebaOS            | Falta a biblioteca |
-| i86 | Windows             | Falta a biblioteca |
-| 386 | Windows             | Falta a biblioteca |
-| 386 | Linux               | Falta a biblioteca |
-| x64 | Windows             | Falta a biblioteca |
-| x64 | macOS               | Falta a biblioteca |
-| x64 | Linux               | Falta a biblioteca |
+| CPU  | Sistema Operacional | Status             |
+|------|---------------------|--------------------|
+| z80  | DOS (MSX)           | Testes iniciais    |
+| z80  | CPM                 | Testes iniciais    |
+| i86  | DOS                 | Falta a biblioteca |
+| i86  | CPM/86              | Falta a biblioteca |
+| i86  | fudebaOS            | Falta a biblioteca |
+| i86  | Windows             | Falta a biblioteca |
+| i386 | Windows             | Falta a biblioteca |
+| i386 | Linux               | Falta a biblioteca |
+| x64  | Windows             | Falta a biblioteca |
+| x64  | macOS               | Falta a biblioteca |
+| x64  | Linux               | Falta a biblioteca |
 
 # Linguagem
 
@@ -267,7 +269,120 @@ end
 
 ```
 
+## For Each
 
+Este comando permite passar por todos os bytes de uma string.
+
+```
+var txt as string = "Oieeeee"
+var i as uint16
+var c as uint8
+for each i, c in txt do
+    // O 'i' contém o indice (Posição) dentro do txt
+    // O 'c' contém o caractere/byte na posição dentro do txt
+end
+```
+
+## While
+
+Repete um comando ou um bloco enquanto uma condição for valida.
+
+```
+var i as uint16
+
+i = 0
+while i < 10 do
+    i += 1
+    // Repete 10 vezes
+end
+```
+
+## Until
+
+Repete um comando ou um bloco até uma condição for valida.
+
+```
+var i as uint16
+
+i = 0
+until i >= 10 do
+    i += 1
+    // Repete 10 vezes
+end
+```
+
+## Asm DESTINO
+
+Marca para qual plataforma os próximos comandos ```asm "codigo"``` serão emitidos, permitindo que um único arquivo gere códigos nativos para várias plataformas.
+
+O destino aceita dois formatos:
+
+- Processador
+- Processador_SistemaOperacional
+
+Exemplos de destinos válidos:
+
+- i86
+- i86_dos
+- i386_windows
+- x64_linux
+- x64
+
+Exemplo de utilização:
+
+```
+
+asm i86
+asm "mov ax, 1"
+asm "mov dx, 0"
+
+asm i386
+asm "mov eax, 1"
+
+asm x64_linux
+asm "mov rax, 1"
+
+```
+
+## Asm COMANDO
+
+Emite um comando assembly para ser montado diretamente pelo montador da plataforma selecionada, conforme tópico acima.
+
+Nos montadores que aceitar rótulos locais, esses serão utilizados para declarar as variáveis locais e agumentos facilitando a utilização, estes sempre serão declarados em maiúsculas.
+
+Exemplo:
+
+```
+
+proc rotina(a as uint16, teste as uint16) do
+    asm i86
+    asm "mov ax, [bp+.A]"
+    asm "mov bx, [bp+.TESTE]"
+
+end
+
+```
+
+## IfTarget
+
+Para que seja mais facil gerar código exclusivo para sistemas operacionais e destinos, foi implementado o comando ```iftarget DESTINO``` no qual apenas gera seu conteúdo para o executável final se o destino for o informado.
+
+O campo destino utiliza a mesma formatação do comando ```asm DESTINO```.
+
+
+Exemplo:
+
+```
+proc rotina do
+    var c as uint16
+    iftarget i86 do
+        c = 15
+    else 
+        c = 33
+    end
+end
+
+```
 
 # Biblioteca Padrão
 

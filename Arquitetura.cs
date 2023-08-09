@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace hl
 {
     public enum Bits
@@ -21,6 +23,9 @@ namespace hl
         public abstract string NomeSistemaOperacional{get;}
         public SistemaOperacional SistemaOperacional{get;set;}
         public string NomeCompleto => (Nome + "_" + NomeSistemaOperacional).Replace(' ', '_');
+
+        public int RotuloNovo => Ambiente != null ? Ambiente.RotuloNovo : throw new Exception("Ambiente não definido na arquitetura. Erro de compilador");
+        public abstract bool ChamarAsmLink(string arqAsm, string arqSaida);
 
         public Ambiente? Ambiente { get; set; }
         public Saida Saida { get; set; }
@@ -46,7 +51,9 @@ namespace hl
         public abstract void EmiteCopiaAParaVar(Bits bits, bool local, string nome);
         public abstract void EmiteCopiaVarParaA(Bits bits, bool local, string nome);
         public abstract void EmiteCopiaAParaVarPtr(Bits bits, bool local, string nome);
+        public abstract void EmiteCopiaAParaVarPtrIndiceEmB(Bits bits, bool local, string nome);
         public abstract void EmiteCopiaVarPtrParaA(Bits bits, bool local, string nome);
+        public abstract void EmiteCopiaVarPtrIndiceEmBParaA(Bits bits, bool local, string nome);
         public abstract void EmiteCopiaEnderecoVarParaA(Bits bits, bool local, string nome);
         public abstract void EmiteCopiaEnderecoRotinaParaA(Bits bits, string nome);
         public abstract void EmiteSomaAEmVar(Bits bits, bool local, string nome);
@@ -87,5 +94,31 @@ namespace hl
         public abstract int PadraoDesvioArgumentos();
         public abstract void EmiteCabecalho();
         public abstract void EmiteRodape();
+
+        public bool ExecutarExterno(string comando, string args)
+        {
+            Process p = new ();
+            var ext = "";
+            if(Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                ext = ".exe";
+            }
+            p.StartInfo.FileName = $"{comando}{ext}";
+            p.StartInfo.Arguments = args;
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.RedirectStandardError = true;
+            p.StartInfo.RedirectStandardOutput = true;
+            p.OutputDataReceived += (sender, e) =>
+            {
+                Console.Write(e.Data);
+            };
+            p.ErrorDataReceived += (sender, e) =>
+            {
+                Console.Write(e.Data);
+            };
+            p.Start();
+            p.WaitForExit();
+            return p.ExitCode == 0;
+        }
     }
 }

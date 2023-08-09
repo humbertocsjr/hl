@@ -1,23 +1,19 @@
-using System.Diagnostics;
-
 namespace hl.Arquiteturas
 {
-    public class Arq8086 : Arquitetura
+    public class ArqZ80: Arquitetura
     {
-        public override string Nome => "i86";
+        public override string Nome => "z80";
         public override string NomeSistemaOperacional => this.SistemaOperacional.ToString();
 
-        public Arq8086(Saida saida, SistemaOperacional sistemaOperacional) : base(saida, sistemaOperacional)
+        public ArqZ80(Saida saida, SistemaOperacional sistemaOperacional) : base(saida, sistemaOperacional)
         {
             switch(this.SistemaOperacional)
             {
                 case SistemaOperacional.Padrao:
-                    SistemaOperacional = SistemaOperacional.DOS;
+                    SistemaOperacional = SistemaOperacional.CPM;
                     break;
                 case SistemaOperacional.CPM:
                 case SistemaOperacional.DOS:
-                case SistemaOperacional.fudebaSO:
-                case SistemaOperacional.Windows:
                     break;
                 default:
                     throw new NotImplementedException("Arquitetura não suportada");
@@ -34,10 +30,10 @@ namespace hl.Arquiteturas
                 case Tipo.Int16:
                 case Tipo.UInt16:
                 case Tipo.ParametrosVariaveis:
+                case Tipo.String:
                     return Bits.Bits16;
                 case Tipo.Int32:
                 case Tipo.UInt32:
-                case Tipo.String:
                     return Bits.Bits32;
                 default:
                     return BitsPonteiro();
@@ -51,7 +47,7 @@ namespace hl.Arquiteturas
 
         public override Bits BitsPonteiro()
         {
-            return Bits.Bits32;
+            return Bits.Bits16;
         }
 
         public override void Emite(string asm)
@@ -69,14 +65,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov bl, al");
+                    Saida.EscreverLinha("ld c, a");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov bx, ax");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov bx, ax");
-                    Saida.EscreverLinha("mov cx, dx");
+                    Saida.EscreverLinha("ld bc, hl");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -88,20 +80,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    if(valor == 0)
-                        Saida.EscreverLinha("xor al, al");
-                    else
-                        Saida.EscreverLinha("mov al, {0}", valor);
+                    Saida.EscreverLinha("ld a, {0}", valor);
                     break;
                 case Bits.Bits16:
-                    if(valor == 0)
-                        Saida.EscreverLinha("xor ax, ax");
-                    else
-                        Saida.EscreverLinha("mov ax, {0}", valor);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, {0}", valor & 0xffff);
-                    Saida.EscreverLinha("mov dx, {0}", (valor >> 16) & 0xffff);
+                    Saida.EscreverLinha("ld hl, {0}", valor);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -113,20 +95,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    if(valor == 0)
-                        Saida.EscreverLinha("xor bl, bl");
-                    else
-                        Saida.EscreverLinha("mov bl, {0}", valor);
+                    Saida.EscreverLinha("ld c, {0}", valor);
                     break;
                 case Bits.Bits16:
-                    if(valor == 0)
-                        Saida.EscreverLinha("xor bx, bx");
-                    else
-                        Saida.EscreverLinha("mov bx, {0}", valor);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov bx, {0}", valor & 0xffff);
-                    Saida.EscreverLinha("mov cx, {0}", (valor >> 16) & 0xffff);
+                    Saida.EscreverLinha("ld bc, {0}", valor);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -138,14 +110,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("pop ax");
+                    Saida.EscreverLinha("pop af");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("pop ax");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("pop ax");
-                    Saida.EscreverLinha("pop dx");
+                    Saida.EscreverLinha("pop hl");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -157,15 +125,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("xor ah, ah");
-                    Saida.EscreverLinha("push ax");
+                    Saida.EscreverLinha("push af");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("push ax");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("push dx");
-                    Saida.EscreverLinha("push ax");
+                    Saida.EscreverLinha("push hl");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -174,11 +137,11 @@ namespace hl.Arquiteturas
 
         public override void EmiteFimFuncao(string nome, Bits bitsRetorno)
         {
-            Saida.EscreverLinha("xor ax, ax");
+            Saida.EscreverLinha("xor hl");
             Saida.EscreverLinha(".__END__:", nome);
-            Saida.EscreverLinha("mov sp, bp");
-            Saida.EscreverLinha("pop bp");
-            Saida.EscreverLinha("retf");
+            Saida.EscreverLinha("ld sp, iy");
+            Saida.EscreverLinha("pop iy");
+            Saida.EscreverLinha("ret");
         }
 
         public override void EmiteFuncao(bool publica, string nome, Bits bitsRetorno)
@@ -190,43 +153,52 @@ namespace hl.Arquiteturas
             }
             if(publica)Saida.EscreverLinha("global _{0}", nome);
             Saida.EscreverLinha("_{0}:", nome);
-            Saida.EscreverLinha("push bp");
-            Saida.EscreverLinha("mov bp, sp");
+            Saida.EscreverLinha("push iy");
+            Saida.EscreverLinha("ld iy, 0");
+            Saida.EscreverLinha("add iy, sp");
         }
 
         public override void EmitePulaParaRotulo(int rotulo, bool local)
         {
-            Saida.EscreverLinha("jmp {0}L{1}", local ? "." : "_", rotulo);
+            Saida.EscreverLinha("jp {0}L{1}", local ? "." : "_", rotulo);
         }
 
         public override void EmitePulaSeDiferenteRotulo(int rotulo, bool local)
         {
-            Saida.EscreverLinha("jne {0}L{1}", local ? "." : "_", rotulo);
+            Saida.EscreverLinha("jp nz, {0}L{1}", local ? "." : "_", rotulo);
         }
 
         public override void EmitePulaSeIgualRotulo(int rotulo, bool local)
         {
-            Saida.EscreverLinha("je {0}L{1}", local ? "." : "_", rotulo);
+            Saida.EscreverLinha("jp z, {0}L{1}", local ? "." : "_", rotulo);
         }
 
         public override void EmitePulaSeMaiorIgualRotulo(int rotulo, bool local, bool sinal)
         {
-            Saida.EscreverLinha("j{2}e {0}L{1}", local ? "." : "_", rotulo, sinal ? "g" : "a");
+            Saida.EscreverLinha("jp nc, {0}L{1}", local ? "." : "_", rotulo);
         }
 
         public override void EmitePulaSeMaiorQueRotulo(int rotulo, bool local, bool sinal)
         {
-            Saida.EscreverLinha("j{2} {0}L{1}", local ? "." : "_", rotulo, sinal ? "g" : "a");
+            int rotuloNao = RotuloNovo;
+            Saida.EscreverLinha("jp c, {0}L{1}", local ? "." : "_", rotuloNao);
+            Saida.EscreverLinha("jp z, {0}L{1}", local ? "." : "_", rotuloNao);
+            Saida.EscreverLinha("jp {0}L{1}", local ? "." : "_", rotulo);
+            EmiteRotulo(rotuloNao, local);
         }
 
         public override void EmitePulaSeMenorIgualRotulo(int rotulo, bool local, bool sinal)
         {
-            Saida.EscreverLinha("j{2}e {0}L{1}", local ? "." : "_", rotulo, sinal ? "l" : "b");
+            int rotuloNao = RotuloNovo;
+            Saida.EscreverLinha("jp z, {0}L{1}", local ? "." : "_", rotulo);
+            Saida.EscreverLinha("jp nc, {0}L{1}", local ? "." : "_", rotuloNao);
+            Saida.EscreverLinha("jp {0}L{1}", local ? "." : "_", rotulo);
+            EmiteRotulo(rotuloNao, local);
         }
 
         public override void EmitePulaSeMenorQueRotulo(int rotulo, bool local, bool sinal)
         {
-            Saida.EscreverLinha("j{2} {0}L{1}", local ? "." : "_", rotulo, sinal ? "l" : "b");
+            Saida.EscreverLinha("jp c, {0}L{1}", local ? "." : "_", rotulo);
         }
 
         public override void EmiteRotulo(int rotulo, bool local)
@@ -239,14 +211,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("add al, bl");
+                    Saida.EscreverLinha("add a, c");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("add ax, bx");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("add ax, bx");
-                    Saida.EscreverLinha("adc dx, cx");
+                    Saida.EscreverLinha("add hl, bc");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -255,17 +223,31 @@ namespace hl.Arquiteturas
 
         public override void EmiteSomaValorEmPtrPilha(long valor)
         {
-            if(valor != 0)Saida.EscreverLinha("add sp, {0}", valor);
+            if(valor != 0)
+            {
+                Saida.EscreverLinha("ld ix, 0");
+                Saida.EscreverLinha("add ix, sp");
+                Saida.EscreverLinha("add ix, {0}", valor);
+                Saida.EscreverLinha("ld sp, ix");
+            }
         }
 
         public override void EmiteSubtraiValorEmPtrPilha(long valor)
         {
-            if(valor != 0)Saida.EscreverLinha("sub sp, {0}", valor);
+            if(valor != 0)
+            {
+                Saida.EscreverLinha("ld ix, 0");
+                Saida.EscreverLinha("add ix, sp");
+                Saida.EscreverLinha("ld de, {0}", valor);
+                Saida.EscreverLinha("or a");
+                Saida.EscreverLinha("sbc ix, de");
+                Saida.EscreverLinha("ld sp, ix");
+            }
         }
 
         public override int PadraoDesvioArgumentos()
         {
-            return 6;
+            return 4;
         }
 
         public override int PadraoDesvioVariaveis()
@@ -283,14 +265,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov [{0}{1}], al", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("ld ({0}{1}), a", local ? "iy+." : "_", nome);
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("mov [{0}{1}+2], dx", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("ld ({0}{1}), hl", local ? "iy+." : "_", nome);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -302,14 +280,11 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("sub al, bl");
+                    Saida.EscreverLinha("sub c");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("sub ax, bx");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("sub ax, bx");
-                    Saida.EscreverLinha("ssb dx, cx");
+                    Saida.EscreverLinha("or a");
+                    Saida.EscreverLinha("sbc hl, bc");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -321,14 +296,13 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("add [{0}{1}], al", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("add a, ({0}{1})", local ? "iy+." : "_", nome);
+                    Saida.EscreverLinha("ld ({0}{1}), a", local ? "iy+." : "_", nome);
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("add [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("add [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("adc [{0}{1}+2], dx", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("ld de, ({0}{1})", local ? "iy+." : "_", nome);
+                    Saida.EscreverLinha("add hl, de");
+                    Saida.EscreverLinha("ld ({0}{1}), hl", local ? "iy+." : "_", nome);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -340,14 +314,14 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("sub [{0}{1}], al", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("sub a, ({0}{1})", local ? "iy+." : "_", nome);
+                    Saida.EscreverLinha("ld ({0}{1}), a", local ? "iy+." : "_", nome);
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("sub [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("sub [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("ssb [{0}{1}+2], dx", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("ld de, ({0}{1})", local ? "iy+." : "_", nome);
+                    Saida.EscreverLinha("or a");
+                    Saida.EscreverLinha("sbc hl, de");
+                    Saida.EscreverLinha("ld ({0}{1}), hl", local ? "iy+." : "_", nome);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -358,16 +332,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("xchg [{0}{1}], al", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("{2} byte [{0}{1}]", local ? "bp+." : "_", nome, sinal ? "imul" : "mul");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("xchg [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("{2} word [{0}{1}]", local ? "bp+." : "_", nome, sinal ? "imul" : "mul");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException("Multiplicacao 32bits nao implementada");
                 default:
                     throw new NotImplementedException();
             }
@@ -377,18 +341,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("xor dx, dx");
-                    Saida.EscreverLinha("xchg [{0}{1}], al", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("{2} byte [{0}{1}]", local ? "bp+." : "_", nome, sinal ? "idiv" : "div");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("xor dx, dx");
-                    Saida.EscreverLinha("xchg [{0}{1}], ax", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("{2} word [{0}{1}]", local ? "bp+." : "_", nome, sinal ? "idiv" : "div");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException("Divisao 32bits nao implementada");
                 default:
                     throw new NotImplementedException();
             }
@@ -396,17 +348,6 @@ namespace hl.Arquiteturas
 
         public override void EmiteCabecalho()
         {
-            Saida.EscreverLinha("cpu 8086");
-            Saida.EscreverLinha("bits 16");
-            Saida.EscreverLinha("mov ax, cs");
-            Saida.EscreverLinha("mov ds, ax");
-            Saida.EscreverLinha("mov es, ax");
-            Saida.EscreverLinha("mov ss, ax");
-            Saida.EscreverLinha("mov sp, 0xfffe");
-            Saida.EscreverLinha("push cs");
-            Saida.EscreverLinha("call _MAIN");
-            Saida.EscreverLinha("mov ah, 0x4c");
-            Saida.EscreverLinha("int 0x21");
         }
 
         public override void EmiteRodape()
@@ -415,7 +356,6 @@ namespace hl.Arquiteturas
 
         public override void EmiteChamar(string nome)
         {
-            Saida.EscreverLinha("push cs");
             Saida.EscreverLinha("call _{0}", nome);
         }
 
@@ -424,15 +364,11 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov ax, {0}L{1}", local ? "." : "_", rotulo);
+                    Saida.EscreverLinha("ld hl, {0}L{1}", local ? "." : "_", rotulo);
+                    Saida.EscreverLinha("ld a, l");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov ax, {0}L{1}", local ? "." : "_", rotulo);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, ds");
-                    Saida.EscreverLinha("mov dx, ax");
-                    Saida.EscreverLinha("mov ax, {0}L{1}", local ? "." : "_", rotulo);
+                    Saida.EscreverLinha("ld hl, {0}L{1}", local ? "." : "_", rotulo);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -511,14 +447,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov al, [{0}{1}]", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("ld a, ({0}{1})", local ? "iy+." : "_", nome);
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov ax, [{0}{1}]", local ? "bp+." : "_", nome);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, [{0}{1}]", local ? "bp+." : "_", nome);
-                    Saida.EscreverLinha("mov dx, [{0}{1}+2]", local ? "bp+." : "_", nome);
+                    Saida.EscreverLinha("ld hl, ({0}{1})", local ? "iy+." : "_", nome);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -527,52 +459,38 @@ namespace hl.Arquiteturas
 
         public override void EmiteCopiaAParaVarPtr(Bits bits, bool local, string nome)
         {
-            Saida.EscreverLinha("push es");
-            Saida.EscreverLinha("push word [{0}{1}]", local ? "bp+." : "_", nome);
-            Saida.EscreverLinha("push word [{0}{1}+2]", local ? "bp+." : "_", nome);
-            Saida.EscreverLinha("pop es");
-            Saida.EscreverLinha("pop di");
+            Saida.EscreverLinha("ld e, ({0}{1})", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld d, ({0}{1}+1)", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld ix, de");
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("stosb");
+                    Saida.EscreverLinha("ld (ix), a");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("stosw");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("es mov [di], ax");
-                    Saida.EscreverLinha("es mov [di+2], dx");
+                    Saida.EscreverLinha("ld (ix), hl");
                     break;
                 default:
                     throw new NotImplementedException();
             }
-            Saida.EscreverLinha("pop es");
         }
 
         public override void EmiteCopiaVarPtrParaA(Bits bits, bool local, string nome)
         {
-            Saida.EscreverLinha("push ds");
-            Saida.EscreverLinha("push word [{0}{1}]", local ? "bp+." : "_", nome);
-            Saida.EscreverLinha("push word [{0}{1}+2]", local ? "bp+." : "_", nome);
-            Saida.EscreverLinha("pop ds");
-            Saida.EscreverLinha("pop si");
+            Saida.EscreverLinha("ld e, ({0}{1})", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld d, ({0}{1}+1)", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld ix, de");
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("lodsb");
+                    Saida.EscreverLinha("ld a, (ix)");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("lodsw");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, [si]");
-                    Saida.EscreverLinha("mov dx, [si+2]");
+                    Saida.EscreverLinha("ld hl, (ix)");
                     break;
                 default:
                     throw new NotImplementedException();
             }
-            Saida.EscreverLinha("pop ds");
         }
 
         public override void EmiteCopiaEnderecoVarParaA(Bits bits, bool local, string nome)
@@ -580,15 +498,11 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov ax, {0}{1}", local ? "." : "_", nome);
+                    Saida.EscreverLinha("ld hl, {0}{1}", local ? "." : "_", nome);
+                    Saida.EscreverLinha("ld a, l");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov ax, {0}{1}", local ? "." : "_", nome);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, ds");
-                    Saida.EscreverLinha("mov dx, ax");
-                    Saida.EscreverLinha("mov ax, {0}{1}", local ? "." : "_", nome);
+                    Saida.EscreverLinha("ld hl, {0}{1}", local ? "." : "_", nome);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -600,15 +514,11 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov ax, _{0}", nome);
+                    Saida.EscreverLinha("ls hl, _{0}", nome);
+                    Saida.EscreverLinha("ld a, l");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov ax, _{0}", nome);
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, cs");
-                    Saida.EscreverLinha("mov dx, ax");
-                    Saida.EscreverLinha("mov ax, _{0}", nome);
+                    Saida.EscreverLinha("ld hl, _{0}", nome);
                     break;
                 default:
                     throw new NotImplementedException();
@@ -619,13 +529,14 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("cmp bl, al");
+                    Saida.EscreverLinha("cp c");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("cmp bx, ax");
+                    Saida.EscreverLinha("push hl");
+                    Saida.EscreverLinha("or a");
+                    Saida.EscreverLinha("sbc hl, bc");
+                    Saida.EscreverLinha("pop hl");
                     break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -636,14 +547,10 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("pop bx");
+                    Saida.EscreverLinha("pop bc");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("pop bx");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("pop bx");
-                    Saida.EscreverLinha("pop cx");
+                    Saida.EscreverLinha("pop bc");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -653,16 +560,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("mov cx, bx");
-                    Saida.EscreverLinha("shr al, cl");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("mov cx, bx");
-                    Saida.EscreverLinha("shr ax, cl");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -672,16 +569,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("mov cx, bx");
-                    Saida.EscreverLinha("shl al, cl");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("mov cx, bx");
-                    Saida.EscreverLinha("shl ax, cl");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -690,16 +577,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("xor dx, dx");
-                    Saida.EscreverLinha("{0} bl", sinal ? "idiv" : "div");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("xor dx, dx");
-                    Saida.EscreverLinha("{0} bx", sinal ? "idiv" : "div");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -709,13 +586,16 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("and al, bl");
+                    Saida.EscreverLinha("and c");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("and ax, bx");
+                    Saida.EscreverLinha("ld a, l");
+                    Saida.EscreverLinha("and c");
+                    Saida.EscreverLinha("ld l, a");
+                    Saida.EscreverLinha("ld a, h");
+                    Saida.EscreverLinha("and b");
+                    Saida.EscreverLinha("ld h, a");
                     break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -724,18 +604,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("xor dx, dx");
-                    Saida.EscreverLinha("{0} bl", sinal ? "idiv" : "div");
-                    Saida.EscreverLinha("mov ax, dx");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("xor dx, dx");
-                    Saida.EscreverLinha("{0} bx", sinal ? "idiv" : "div");
-                    Saida.EscreverLinha("mov ax, dx");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -744,14 +612,6 @@ namespace hl.Arquiteturas
         {
             switch (bits)
             {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("{0} bl", sinal ? "imul" : "mul");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("{0} bx", sinal ? "imul" : "mul");
-                    break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -761,13 +621,16 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("or al, bl");
+                    Saida.EscreverLinha("or c");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("or ax, bx");
+                    Saida.EscreverLinha("ld a, l");
+                    Saida.EscreverLinha("or c");
+                    Saida.EscreverLinha("ld l, a");
+                    Saida.EscreverLinha("ld a, h");
+                    Saida.EscreverLinha("or b");
+                    Saida.EscreverLinha("ld h, a");
                     break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
@@ -777,31 +640,33 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("xor al, bl");
+                    Saida.EscreverLinha("xor c");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("xor ax, bx");
+                    Saida.EscreverLinha("ld a, l");
+                    Saida.EscreverLinha("xor c");
+                    Saida.EscreverLinha("ld l, a");
+                    Saida.EscreverLinha("ld a, h");
+                    Saida.EscreverLinha("xor b");
+                    Saida.EscreverLinha("ld h, a");
                     break;
-                case Bits.Bits32:
-                    throw new NotImplementedException();
                 default:
                     throw new NotImplementedException();
             }
         }
         public override void EmiteCopiaAParaVarPtrIndiceEmB(Bits bits, bool local, string nome)
         {
-            Saida.EscreverLinha("mov si, [{0}{1}]", local ? "bp+." : "_", nome);
+            Saida.EscreverLinha("ld e, ({0}{1})", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld d, ({0}{1}+1)", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld ix, de");
+            Saida.EscreverLinha("add ix, bc");
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("mov [si+bx], al");
+                    Saida.EscreverLinha("ld (ix), a");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov [si+bx], ax");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov [si+bx], ax");
-                    Saida.EscreverLinha("mov [si+bx+2], dx");
+                    Saida.EscreverLinha("ld (ix), hl");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -809,19 +674,17 @@ namespace hl.Arquiteturas
         }
         public override void EmiteCopiaVarPtrIndiceEmBParaA(Bits bits, bool local, string nome)
         {
-            Saida.EscreverLinha("mov si, [{0}{1}]", local ? "bp+." : "_", nome);
+            Saida.EscreverLinha("ld e, ({0}{1})", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld d, ({0}{1}+1)", local ? "iy+." : "_", nome);
+            Saida.EscreverLinha("ld ix, de");
+            Saida.EscreverLinha("add ix, bc");
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("xor ax, ax");
-                    Saida.EscreverLinha("mov al, [si+bx]");
+                    Saida.EscreverLinha("ld a, (ix)");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("mov ax, [si+bx]");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("mov ax, [si+bx]");
-                    Saida.EscreverLinha("mov dx, [si+bx+2]");
+                    Saida.EscreverLinha("ld hl, (ix)");
                     break;
                 default:
                     throw new NotImplementedException();
@@ -831,7 +694,7 @@ namespace hl.Arquiteturas
 
         public override bool ChamarAsmLink(string arqAsm, string arqSaida)
         {
-            return ExecutarExterno("nasm", $"-f bin  --before \"org 0x100\" -o \"{arqSaida}\" \"{arqAsm}\"");
+            return false;
         }
     }
 }

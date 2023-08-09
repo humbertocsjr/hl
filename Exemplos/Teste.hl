@@ -2,6 +2,7 @@ import "Console.hli"
 
 func Main(argc as int16, argv as ptr string) as int16 do
     var i as uint16
+    var c as uint8
     Console.WriteLine "Oieee mundo"
     var txt as string = "   "
     Console.WriteLine txt
@@ -10,6 +11,19 @@ func Main(argc as int16, argv as ptr string) as int16 do
     end
     for i = 1 to 10 step 2 do
         Console.Write "."
+    end
+    for each i, c in txt do
+        Console.Write "#"
+    end
+    i = 0
+    while i < 10 do
+        Console.Write "$"
+        i += 1
+    end
+    i = 0
+    until i >= 10 do
+        Console.Write "%"
+        i += 1
     end
     iftarget i86 do
         Console.WriteLine "Rodando do i86"

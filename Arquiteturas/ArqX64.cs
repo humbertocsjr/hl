@@ -69,12 +69,15 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
+                    Saida.EscreverLinha("xor rbx, rbx");
                     Saida.EscreverLinha("mov bl, al");
                     break;
                 case Bits.Bits16:
+                    Saida.EscreverLinha("xor rbx, rbx");
                     Saida.EscreverLinha("mov bx, ax");
                     break;
                 case Bits.Bits32:
+                    Saida.EscreverLinha("xor rbx, rbx");
                     Saida.EscreverLinha("mov ebx, eax");
                     break;
                 case Bits.Bits64:
@@ -528,27 +531,7 @@ namespace hl.Arquiteturas
 
         public override void EmiteCopiaAParaVarPtr(Bits bits, bool local, string nome)
         {
-            Saida.EscreverLinha("mov esi, [{0}{1}]", local ? "rbp+." : "_", nome);
-            switch (bits)
-            {
-                case Bits.Bits8:
-                    Saida.EscreverLinha("lodsb");
-                    break;
-                case Bits.Bits16:
-                    Saida.EscreverLinha("lodsw");
-                    break;
-                case Bits.Bits32:
-                    Saida.EscreverLinha("lodsd");
-                    break;
-                case Bits.Bits64:
-                    Saida.EscreverLinha("lodsq");
-                    break;
-            }
-        }
-
-        public override void EmiteCopiaVarPtrParaA(Bits bits, bool local, string nome)
-        {
-            Saida.EscreverLinha("mov di, [{0}{1}]", local ? "rbp+." : "_", nome);
+            Saida.EscreverLinha("mov rdi, [{0}{1}]", local ? "rbp+." : "_", nome);
             switch (bits)
             {
                 case Bits.Bits8:
@@ -562,6 +545,26 @@ namespace hl.Arquiteturas
                     break;
                 case Bits.Bits64:
                     Saida.EscreverLinha("stosq");
+                    break;
+            }
+        }
+
+        public override void EmiteCopiaVarPtrParaA(Bits bits, bool local, string nome)
+        {
+            Saida.EscreverLinha("mov rsi, [{0}{1}]", local ? "rbp+." : "_", nome);
+            switch (bits)
+            {
+                case Bits.Bits8:
+                    Saida.EscreverLinha("lodsb");
+                    break;
+                case Bits.Bits16:
+                    Saida.EscreverLinha("lodsw");
+                    break;
+                case Bits.Bits32:
+                    Saida.EscreverLinha("lodsd");
+                    break;
+                case Bits.Bits64:
+                    Saida.EscreverLinha("lodsq");
                     break;
             }
         }
@@ -804,6 +807,60 @@ namespace hl.Arquiteturas
                     Saida.EscreverLinha("xor rax, rax");
                     break;
             }
+        }
+        public override void EmiteCopiaAParaVarPtrIndiceEmB(Bits bits, bool local, string nome)
+        {
+            Saida.EscreverLinha("mov rsi, [{0}{1}]", local ? "rbp+." : "_", nome);
+            switch (bits)
+            {
+                case Bits.Bits8:
+                    Saida.EscreverLinha("mov [rsi+rbx], al");
+                    break;
+                case Bits.Bits16:
+                    Saida.EscreverLinha("mov [rsi+rbx], ax");
+                    break;
+                case Bits.Bits32:
+                    Saida.EscreverLinha("mov [rsi+rbx], eax");
+                    break;
+                case Bits.Bits64:
+                    Saida.EscreverLinha("mov [rsi+rbx], rax");
+                    break;
+            }
+        }
+        public override void EmiteCopiaVarPtrIndiceEmBParaA(Bits bits, bool local, string nome)
+        {
+            Saida.EscreverLinha("mov rsi, [{0}{1}]", local ? "rbp+." : "_", nome);
+            switch (bits)
+            {
+                case Bits.Bits8:
+                    Saida.EscreverLinha("xor rax, rax");
+                    Saida.EscreverLinha("mov al, [rsi+rbx]");
+                    break;
+                case Bits.Bits16:
+                    Saida.EscreverLinha("xor rax, rax");
+                    Saida.EscreverLinha("mov ax, [rsi+rbx]");
+                    break;
+                case Bits.Bits32:
+                    Saida.EscreverLinha("xor rax, rax");
+                    Saida.EscreverLinha("mov eax, [rsi+rbx]");
+                    break;
+                case Bits.Bits64:
+                    Saida.EscreverLinha("mov rax, [rsi+rbx]");
+                    break;
+            }
+ 
+        }
+
+        public override bool ChamarAsmLink(string arqAsm, string arqSaida)
+        {
+            switch(SistemaOperacional)
+            {
+                case SistemaOperacional.Linux:
+                    return ExecutarExterno("yasm", $"-f elf64 -o \"{arqSaida}\" \"{arqAsm}\"");
+                case SistemaOperacional.macOS:
+                    return ExecutarExterno("yasm", $"-f macho64 -o \"{arqSaida}\" \"{arqAsm}\"");
+            }
+            return false;
         }
     }
 }

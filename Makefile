@@ -1,6 +1,7 @@
 all: bin/Debug/net6.0/hl
 clean:
 	@dotnet clean
+	@-rm -R bin
 	@-rm Exemplos/*.bin
 	@-rm Exemplos/*.com
 
@@ -8,11 +9,10 @@ install:
 	@-rm -fR bin/Release
 	@dotnet build -c Release --sc -o bin/Release
 	@mkdir -p /opt/hl
-	@install -t /opt/hl bin/Release/*
-	@ln -f -s /opt/hl/hl /usr/bin/hl
+	@install bin/Release/* /opt/hl
+	@ln -f -s /opt/hl/hl /usr/local/bin/hl
 	@-rm -fR bin/Release
-	@chown -R $(shell logname):$(shell logname) obj
-	@chown -R $(shell logname):$(shell logname) bin
+	@-rm -fR obj/Release
 
 bin/Debug/net6.0/hl: $(wildcard Nos/*.cs) $(wildcard Arquiteturas/*.cs) $(wildcard *.cs)
 	@dotnet build
@@ -20,6 +20,7 @@ bin/Debug/net6.0/hl: $(wildcard Nos/*.cs) $(wildcard Arquiteturas/*.cs) $(wildca
 testedos: all
 	@bin/Debug/net6.0/hl -i86 -dos -o Exemplos/Teste.asm Exemplos/Teste.hl > Exemplos/Teste.log
 	@nasm -f bin --before "org 0x100" -o Exemplos/Teste.com Exemplos/Teste.asm >> Exemplos/Teste.log
+	@cat Exemplos/Teste.asm >> Exemplos/Teste.log
 	@rm Exemplos/Teste.asm
 	@ndisasm -b 16 -o 0x100 Exemplos/Teste.com >> Exemplos/Teste.log
 	@echo -= TESTE.COM =- >> Exemplos/Teste.log

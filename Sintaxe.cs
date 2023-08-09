@@ -288,25 +288,61 @@ namespace hl
 
             switch (cod.Current.Tipo)
             {
+                case TipoTrecho.IdWhile:
+                    {
+                        cod.MoveNext();
+                        var wcmp = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado uma condição para repetição");
+                        ret = new EnquantoNo(atual, wcmp, ProcessarComando(amb, fonte, cod)  ?? throw new Erro(cod.Current, "Esperado o conteudo da repetição"));
+                    }
+                    break;
+                case TipoTrecho.IdUntil:
+                    {
+                        cod.MoveNext();
+                        var ucmp = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado uma condição para repetição");
+                        ret = new AteNo(atual, ucmp, ProcessarComando(amb, fonte, cod)  ?? throw new Erro(cod.Current, "Esperado o conteudo da repetição"));
+                    }
+                    break;
                 case TipoTrecho.IdFor:
                     {
                         cod.MoveNext();
-                        cod.Current.ExigeId();
-                        var flvar = cod.Current.ConteudoMaiusculo;
-                        cod.MoveNext();
-                        cod.Current.Exige(TipoTrecho.Atribuicao);
-                        cod.MoveNext();
-                        var flde = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado o valor inicial da repetição");
-                        cod.Current.Exige(TipoTrecho.IdTo);
-                        cod.MoveNext();
-                        var flpara = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado o valor final da repetição");
-                        No flpasso = new NumeroNo(cod.Current, 1);
-                        if(cod.Current.Tipo == TipoTrecho.IdStep)
+                        if(cod.Current.Tipo == TipoTrecho.IdEach)
                         {
                             cod.MoveNext();
-                            flpasso = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado o tamanho do passo da repetição");
+                            cod.Current.ExigeId();
+                            var feindice = cod.Current.ConteudoMaiusculo;
+                            cod.MoveNext();
+                            cod.Current.Exige(TipoTrecho.Virgula);
+                            cod.MoveNext();
+                            cod.Current.ExigeId();
+                            var feitem = cod.Current.ConteudoMaiusculo;
+                            cod.MoveNext();
+                            cod.Current.Exige(TipoTrecho.IdIn);
+                            cod.MoveNext();
+                            cod.Current.ExigeId();
+                            var feorigem = cod.Current.ConteudoMaiusculo;
+                            cod.MoveNext();
+                            ret = new ParaCadaNo(atual, feindice, feitem, feorigem, ProcessarComando(amb, fonte, cod)  ?? throw new Erro(cod.Current, "Esperado o conteudo da repetição"));
                         }
-                        ret = new ParaNo(atual, flvar, flde, flpara, flpasso, ProcessarComando(amb, fonte, cod)  ?? throw new Erro(cod.Current, "Esperado o conteudo da repetição"));
+                        else
+                        {
+                            cod.Current.ExigeId();
+                            var flvar = cod.Current.ConteudoMaiusculo;
+                            cod.MoveNext();
+                            cod.Current.Exige(TipoTrecho.Atribuicao);
+                            cod.MoveNext();
+                            var flde = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado o valor inicial da repetição");
+                            cod.Current.Exige(TipoTrecho.IdTo);
+                            cod.MoveNext();
+                            var flpara = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado o valor final da repetição");
+                            No flpasso = new NumeroNo(cod.Current, 1);
+                            if(cod.Current.Tipo == TipoTrecho.IdStep)
+                            {
+                                cod.MoveNext();
+                                flpasso = Expr(amb, cod) ?? throw new Erro(cod.Current, "Esperado o tamanho do passo da repetição");
+                            }
+                            ret = new ParaNo(atual, flvar, flde, flpara, flpasso, ProcessarComando(amb, fonte, cod)  ?? throw new Erro(cod.Current, "Esperado o conteudo da repetição"));
+
+                        }
                     }
                     break;
                 case TipoTrecho.IdIf:

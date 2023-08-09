@@ -11,12 +11,16 @@ namespace hl
         static void Main(string[] args)
         {
             Saida? saida= null;
+            string saidaObj = "";
+            string saidaAsm = "";
             Ambiente? ambiente= null;
             List<string> fontes = new List<string>();
             Arquitetura? arquitetura = null;
             bool arq8086 = false;
             bool arq386 = false;
             bool arqx64 = false;
+            bool arqz80 = false;
+            bool asmApenas = false;
             SistemaOperacional sistemaOperacional = SistemaOperacional.Padrao;
 
             if(args.Length == 0)
@@ -29,7 +33,10 @@ namespace hl
                 if (args[i].Equals("-o"))
                 {
                     i++;
-                    saida = new Saida(args[i]);
+                    saidaObj = args[i];
+                    saidaAsm = saidaObj.EndsWith(".asm") ? saidaObj : saidaObj + ".tmp";
+                    if(saidaObj.EndsWith(".asm")) asmApenas = true;
+                    saida = new Saida(saidaAsm);
                 }
                 else if (args[i].Equals("-8086") || args[i].Equals("-i86") || args[i].Equals("-m16"))
                 {
@@ -42,6 +49,10 @@ namespace hl
                 else if (args[i].Equals("-86-64") || args[i].Equals("-x64") || args[i].Equals("-m64"))
                 {
                     arqx64 = true;
+                }
+                else if (args[i].Equals("-z80") || args[i].Equals("-m8"))
+                {
+                    arqz80 = true;
                 }
                 else if(args[i].Equals("-fudeba") || args[i].Equals("-fudebaso"))
                 {
@@ -71,6 +82,10 @@ namespace hl
                 {
                     sistemaOperacional = SistemaOperacional.BIOS;
                 }
+                else if(args[i].Equals("-asm"))
+                {
+                    asmApenas = true;
+                }
                 else if(args[i].Equals("-h") || args[i].Equals("--help") || args[i].Equals("/?") || args[i].Equals("/h") || args[i].Equals("/help"))
                 {
                     Console.WriteLine($"Compilador HL v{Version}.{SubVersion} R{Revision}");
@@ -79,7 +94,8 @@ namespace hl
                     Console.WriteLine("Modo de uso: hl [destino] [sistema operacional] [opções] [arquivos .hl ...]");
                     Console.WriteLine();
                     Console.WriteLine("Opções:");
-                    Console.WriteLine(" -o [saida.asm]       = Saida do compilador");
+                    Console.WriteLine(" -o [arq.o|arq.asm]   = Saida do compilador");
+                    Console.WriteLine(" -asm                 = Força apenas o código assembly");
                     Console.WriteLine();
                     Console.WriteLine("Sistemas Operacionais:");
                     Console.WriteLine(" -win                 = Windows");
@@ -91,6 +107,8 @@ namespace hl
                     Console.WriteLine(" -fudeba              = fudebaSO");
                     Console.WriteLine();
                     Console.WriteLine("Destinos:");
+                    Console.WriteLine(" -m8                  = Destino Z80");
+                    Console.WriteLine(" -z80                 ");
                     Console.WriteLine(" -m16                 = Destino 8086/8088");
                     Console.WriteLine(" -i86                 ");
                     Console.WriteLine(" -m32                 = Destino 386");
@@ -106,15 +124,20 @@ namespace hl
 
             if(saida != null  && fontes.Count > 0)
             {
-                if(arq8086) arquitetura = new Arq8086(saida, sistemaOperacional);
-                if(arq386) arquitetura = new Arq386(saida, sistemaOperacional);
-                if(arqx64) arquitetura = new ArqX64(saida, sistemaOperacional);
-                if(arquitetura == null) return;
-                ambiente = new Ambiente(arquitetura, saida);
                 /*
                 try
                 {
                 */
+                if(arq8086) arquitetura = new Arq8086(saida, sistemaOperacional);
+                if(arq386) arquitetura = new Arq386(saida, sistemaOperacional);
+                if(arqx64) arquitetura = new ArqX64(saida, sistemaOperacional);
+                if(arqz80) arquitetura = new ArqZ80(saida, sistemaOperacional);
+                if(arquitetura == null)
+                {
+                    Console.Error.WriteLine("Arquitetura de destino não selecionada");
+                    return;
+                }
+                ambiente = new Ambiente(arquitetura, saida);
                 arquitetura.EmiteCabecalho();
                 foreach (var item in fontes)
                 {
@@ -123,6 +146,14 @@ namespace hl
                 ambiente.Compilar();
                 arquitetura.EmiteRodape();
                 saida.Fechar();
+                if(!asmApenas)
+                {
+                    arquitetura.ChamarAsmLink(saidaAsm, saidaObj);
+                    if(saidaAsm.EndsWith(".tmp"))
+                    {
+                        File.Delete(saidaAsm);
+                    }
+                }
                 /*
                 }
                 catch(Erro erro)

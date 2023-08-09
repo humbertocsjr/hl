@@ -461,13 +461,13 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("lodsb");
+                    Saida.EscreverLinha("stosb");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("lodsw");
+                    Saida.EscreverLinha("stosw");
                     break;
                 case Bits.Bits32:
-                    Saida.EscreverLinha("lodsd");
+                    Saida.EscreverLinha("stosd");
                     break;
             }
         }
@@ -478,13 +478,13 @@ namespace hl.Arquiteturas
             switch (bits)
             {
                 case Bits.Bits8:
-                    Saida.EscreverLinha("stosb");
+                    Saida.EscreverLinha("lodsb");
                     break;
                 case Bits.Bits16:
-                    Saida.EscreverLinha("stosw");
+                    Saida.EscreverLinha("lodsw");
                     break;
                 case Bits.Bits32:
-                    Saida.EscreverLinha("stosd");
+                    Saida.EscreverLinha("lodsd");
                     break;
             }
         }
@@ -687,6 +687,53 @@ namespace hl.Arquiteturas
                     Saida.EscreverLinha("xor eax, eax");
                     break;
             }
+        }
+        public override void EmiteCopiaAParaVarPtrIndiceEmB(Bits bits, bool local, string nome)
+        {
+            Saida.EscreverLinha("mov esi, [{0}{1}]", local ? "ebp+." : "_", nome);
+            switch (bits)
+            {
+                case Bits.Bits8:
+                    Saida.EscreverLinha("mov [esi+ebx], al");
+                    break;
+                case Bits.Bits16:
+                    Saida.EscreverLinha("mov [esi+ebx], ax");
+                    break;
+                case Bits.Bits32:
+                    Saida.EscreverLinha("mov [esi+ebx], eax");
+                    break;
+            }
+        }
+        public override void EmiteCopiaVarPtrIndiceEmBParaA(Bits bits, bool local, string nome)
+        {
+            Saida.EscreverLinha("mov esi, [{0}{1}]", local ? "ebp+." : "_", nome);
+            switch (bits)
+            {
+                case Bits.Bits8:
+                    Saida.EscreverLinha("xor eax, eax");
+                    Saida.EscreverLinha("mov al, [esi+ebx]");
+                    break;
+                case Bits.Bits16:
+                    Saida.EscreverLinha("xor eax, eax");
+                    Saida.EscreverLinha("mov ax, [esi+ebx]");
+                    break;
+                case Bits.Bits32:
+                    Saida.EscreverLinha("mov eax, [esi+ebx]");
+                    break;
+            }
+ 
+        }
+
+        public override bool ChamarAsmLink(string arqAsm, string arqSaida)
+        {
+            switch(SistemaOperacional)
+            {
+                case SistemaOperacional.Linux:
+                    return ExecutarExterno("nasm", $"-f elf32 -o \"{arqSaida}\" \"{arqAsm}\"");
+                case SistemaOperacional.macOS:
+                    return ExecutarExterno("nasm", $"-f macho32 -o \"{arqSaida}\" \"{arqAsm}\"");
+            }
+            return false;
         }
 
     }
