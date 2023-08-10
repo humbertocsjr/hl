@@ -79,7 +79,7 @@ namespace hl
                             BinarioENo op = new (cod.Current);
                             cod.MoveNext();
                             op.Abaixo.Add(ret);
-                            ret = Expr5(amb, cod);
+                            ret = Expr6(amb, cod);
                             if(ret != null)op.Abaixo.Add(ret);
                             ret = op;
                         }
@@ -89,7 +89,7 @@ namespace hl
                             BinarioOuNo op = new (cod.Current);
                             cod.MoveNext();
                             op.Abaixo.Add(ret);
-                            ret = Expr5(amb, cod);
+                            ret = Expr6(amb, cod);
                             if(ret != null)op.Abaixo.Add(ret);
                             ret = op;
                         }
@@ -99,7 +99,7 @@ namespace hl
                             BinarioOuExclusivoNo op = new (cod.Current);
                             cod.MoveNext();
                             op.Abaixo.Add(ret);
-                            ret = Expr5(amb, cod);
+                            ret = Expr6(amb, cod);
                             if(ret != null)op.Abaixo.Add(ret);
                             ret = op;
                         }
@@ -109,7 +109,7 @@ namespace hl
                             BinarioDeslocaDireitaNo op = new (cod.Current);
                             cod.MoveNext();
                             op.Abaixo.Add(ret);
-                            ret = Expr5(amb, cod);
+                            ret = Expr6(amb, cod);
                             if(ret != null)op.Abaixo.Add(ret);
                             ret = op;
                         }
@@ -119,7 +119,7 @@ namespace hl
                             BinarioDeslocaEsquerdaNo op = new (cod.Current);
                             cod.MoveNext();
                             op.Abaixo.Add(ret);
-                            ret = Expr5(amb, cod);
+                            ret = Expr6(amb, cod);
                             if(ret != null)op.Abaixo.Add(ret);
                             ret = op;
                         }
