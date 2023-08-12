@@ -189,7 +189,7 @@ As operações mais ao topo da tabela são executadas por último, englobando tr
 |--------------------|----------------------------------|
 | &&                 | E Lógico                         |
 | ||                 | Ou Lógico                        |
-| == != \<\> < > \<\= \=\> | Comparações                      |
+| == != \<\> < > \<\= \>\= | Comparações                      |
 | + -                | Soma, Subtração                  |
 | * / %              | Multiplicação, Divisão, Módulo   |
 | & \| \<\< \>\>         | Operações binárias               |
@@ -219,13 +219,13 @@ As operações mais ao topo da tabela são executadas por último, englobando tr
 - **<>** ou **!=** \
     Diferença entre dois valores, retornando 1 para Sim e 0 para Não
 - **<** \
-    Maior Que entre dois valores, retornando 1 para Sim e 0 para Não
-- **\<\=** \
-    Maior Ou Igual entre dois valores, retornando 1 para Sim e 0 para Não
-- **>** \
     Menor Que entre dois valores, retornando 1 para Sim e 0 para Não
-- **\>\=** \
+- **\<\=** \
     Menor Ou Igual entre dois valores, retornando 1 para Sim e 0 para Não
+- **>** \
+    Maior Que entre dois valores, retornando 1 para Sim e 0 para Não
+- **\>\=** \
+    Maior Ou Igual entre dois valores, retornando 1 para Sim e 0 para Não
 - **\<\<** \
     Aplica deslocamento de bits a esqueda
 - **\>\>** \
